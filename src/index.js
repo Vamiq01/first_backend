@@ -1,52 +1,38 @@
-// require('dotenv').config({path:'./env'})
-
-import dotenv from "dotenv";
 import connectDB from "./db/index.js";
+import mongoose from "mongoose"
+import Express from "express"
+import { DB_NAME } from "./constants.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-
-dotenv.config({
-    path: './env'
-})
-
-
-
-
+// console.log(process.env.PORT)
 
 connectDB()
-    .then(() => {
-        try {
-            const port = process.env.PORT || 8000;
+  .then(() => {
+    const port = process.env.PORT || 8000;
 
-            app.listen(port, () => {
-                console.log(`Server is running at port : ${port}`)
-            })
-        }
-        catch (err) {
-            console.log("Server connection failed error : ", err);
+    app.listen(port, () => {
+      console.log(`Server is running at port : ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MongoDB connection failed !!! ", err);
+  });
 
-        }
-    })
-    .catch((err) => {
-        console.log("MongoDB connection failed !!! ", err);
-    })
+const app = Express();
+(async () => {
+  try {
+    await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`); // given database url
+    app.on("Error", (error) => {
+      console.log("Error : ", error);
+      throw error;
+    });
 
-
-// const app = Express();
-// (async () => {
-//     try {
-//         await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`);
-//         app.on("Error",(error)=>{
-//             console.log("Error : " ,error);
-//             throw error
-//         })
-
-//         app.listen(process.env.PORT,()=>{
-//             console.log(`App is Listening on Port ${process.env.PORT}`);
-//         })
-//     }
-//     catch (error) {
-//         console.log("Error : ", error);
-//         throw error;
-//     }
-
-// })();
+    app.listen(process.env.PORT, () => {
+      console.log(`App is Listening on Port ${process.env.PORT}`); //port 
+    });
+  } catch (error) {
+    console.log("Error : ", error);
+    throw error;
+  }
+})();
